@@ -80,7 +80,7 @@ namespace Restaurant.Core
             if (_delay == 0)
             {
                 _logTask?.Invoke(this, _currentOrder);
-                _currentOrder = null;
+
             }
         }
     }
