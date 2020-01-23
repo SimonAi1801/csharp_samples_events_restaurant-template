@@ -16,7 +16,7 @@ namespace Restaurant.Core
         private int _delay;
         private string _pathTask = MyFile.GetFullNameInApplicationTree("Tasks.csv");
         private string _pathArticle = MyFile.GetFullNameInApplicationTree("Articles.csv");
-        private int minutesToBuild;
+        private int _minutesToBuild;
         private Order _currentOrder;
         private Article _currentArticle;
 
@@ -68,11 +68,19 @@ namespace Restaurant.Core
             {
                 _currentOrder = _orders.Dequeue();
                 _delay = _currentOrder.Delay;
+
+                if (_articles.TryGetValue(_currentOrder.MyArticle, out _currentArticle))
+                {
+                    _minutesToBuild = _currentArticle.TimeToBuild;
+                    _currentOrder.Price = _currentArticle.Price;
+                }
             }
             _delay--;
+
             if (_delay == 0)
             {
-                //_logTask?.Invoke(this, _orders);
+                _logTask?.Invoke(this, _currentOrder);
+                _currentOrder = null;
             }
         }
     }

@@ -11,5 +11,12 @@ namespace Restaurant.Core
         public string Name { get; set; }
 
         public int Bill { get; set; }
+
+        public double GetBill()
+        {
+            double amount = 0;
+
+            return amount;
+        }
     }
 }

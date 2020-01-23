@@ -30,17 +30,16 @@ namespace Restaurant.Wpf
 
         protected void OnReadyTask(object sender, Order order)
         {
-            string line = String.Empty;
-            AddLineToTextBox(line, order);
+            AddLineToTextBox(order);
         }
 
-        void AddLineToTextBox(string line, Order order)
+        void AddLineToTextBox(Order order)
         {
             StringBuilder text = new StringBuilder(TextBlockLog.Text);
-            //text.Append("\n");
-            //text.Append(FastClock.Instance.Time.ToShortTimeString() + " \t ");
-            //text.Append(line + " \t ");
-            //text.Append(FastClock.Instance.Time.ToString() + " \t ");
+            text.Append("\n");
+            text.Append(FastClock.Instance.Time.ToShortTimeString() + " \t ");
+            text.Append($"{order.MyArticle} für {order.Customer}" + " \t ");
+            text.Append($" ist {order.MyOrderType}.");
             TextBlockLog.Text = text.ToString();
         }
     }
