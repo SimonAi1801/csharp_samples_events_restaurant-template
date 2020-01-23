@@ -10,19 +10,29 @@ namespace Restaurant.Core
 {
     public class Waiter
     {
-        public event EventHandler<Order> _logTask;
-        private List<Article> _articles;
-        private List<Order> _orders;
+        private event EventHandler<Order> _logTask;
+        private Dictionary<string, Article> _articles;
+        private Queue<Order> _orders;
         private int _delay;
         private string _pathTask = MyFile.GetFullNameInApplicationTree("Tasks.csv");
         private string _pathArticle = MyFile.GetFullNameInApplicationTree("Articles.csv");
         private int minutesToBuild;
+        private Order _currentOrder;
+        private Article _currentArticle;
+
+        public bool IsBusy
+        {
+            get
+            {
+                return _currentOrder != null;
+            }
+        }
 
         public Waiter(EventHandler<Order> onReadyTask)
         {
             _logTask += onReadyTask;
-            _articles = new List<Article>();
-            _orders = new List<Order>();
+            _articles = new Dictionary<string, Article>();
+            _orders = new Queue<Order>();
             string[] tasksLines = File.ReadAllLines(_pathTask);
             string[] articlesLines = File.ReadAllLines(_pathArticle);
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
@@ -33,30 +43,36 @@ namespace Restaurant.Core
 
         private void InitArticles(string[] articlesLines)
         {
-            for (int i = articlesLines.Length - 1; i >= 1; i--)
+            for (int i = 1; i < articlesLines.Length; i++)
             {
                 string[] parts = articlesLines[i].Split(';');
+                string articleName = parts[0];
                 Article article = new Article(parts[0], Convert.ToDouble(parts[1]), Convert.ToInt32(parts[2]));
-                _articles.Add(article);
+                _articles.Add(articleName, article);
             }
         }
 
         private void InitTasks(string[] tasksLines)
         {
-            for (int i = tasksLines.Length - 1; i >= 1; i--)
+            for (int i = 1; i < tasksLines.Length; i++)
             {
                 string[] parts = tasksLines[i].Split(';');
                 Order order = new Order(Convert.ToInt32(parts[0]), parts[1], parts[2], parts[3]);
-                _orders.Add(order);
+                _orders.Enqueue(order);
             }
         }
 
         protected void Instance_OneMinuteIsOver(object sender, DateTime e)
         {
-
-            if (true)
+            if (!IsBusy)
             {
-                _logTask?.Invoke(this, _orders[0]);
+                _currentOrder = _orders.Dequeue();
+                _delay = _currentOrder.Delay;
+            }
+            _delay--;
+            if (_delay == 0)
+            {
+                //_logTask?.Invoke(this, _orders);
             }
         }
     }
