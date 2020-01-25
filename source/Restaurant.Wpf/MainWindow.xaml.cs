@@ -16,7 +16,7 @@ namespace Restaurant.Wpf
 
         private void MetroWindow_Initialized(object sender, EventArgs e)
         {
-            FastClock.Instance.Factor = 60;
+            FastClock.Instance.Factor = 360;
             FastClock.Instance.Time = DateTime.Parse("12:00");
             FastClock.Instance.IsRunning = true;
             Waiter waiter = new Waiter(OnTaskReady);

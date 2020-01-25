@@ -48,17 +48,15 @@ namespace Restaurant.Core
             string[] taskLines = File.ReadAllLines(taskPath, UTF8Encoding.Default);
             OrderType orderType;
             Article article;
-            Guest guest;
 
             for (int i = 1; i < taskLines.Length; i++)
             {
                 string[] parts = taskLines[i].Split(';');
+                string guestName = parts[1];
+                Guest guest = new Guest(guestName);
 
-                if (parts != null && Enum.TryParse(parts[2], out orderType)
-                    && _articles.TryGetValue(parts[3], out article))
+                if (parts != null && Enum.TryParse(parts[2], out orderType))
                 {
-                    string guestName = parts[1];
-                    guest = new Guest(guestName);
                     if (!_guestList.ContainsKey(guestName))
                     {
                         _guestList.Add(guestName, guest);
@@ -68,7 +66,7 @@ namespace Restaurant.Core
                     Task taskOrder = new Task(taskTime, parts[1], orderType, parts[3]);
                     _tasks.Add(taskOrder);
 
-                    if (orderType == OrderType.Order)
+                    if (orderType == OrderType.Order && _articles.TryGetValue(parts[3], out article))
                     {
                         taskTime = taskTime.AddMinutes(article.TimeToBuild);
                         Task taskReady = new Task(taskTime, taskOrder.Customer, OrderType.Ready, taskOrder.MyArticle);
@@ -103,7 +101,7 @@ namespace Restaurant.Core
 
                     else if (_tasks[0].MyOrderType == OrderType.ToPay)
                     {
-                        text = $"{_tasks[0].Customer} bezahlt {guest.Bill} EUR!";
+                        text = $"{_tasks[0].Customer} bezahlt {guest.Bill:F2} EUR!";
                     }
 
                     OnTaskFinish(text);
