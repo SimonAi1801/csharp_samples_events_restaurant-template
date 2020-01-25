@@ -19,7 +19,7 @@ namespace Restaurant.Wpf
             FastClock.Instance.Factor = 60;
             FastClock.Instance.Time = DateTime.Parse("12:00");
             FastClock.Instance.IsRunning = true;
-            Waiter waiter = new Waiter(OnReadyTask);
+            Waiter waiter = new Waiter(OnTaskReady);
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
         }
 
@@ -28,19 +28,12 @@ namespace Restaurant.Wpf
             Title = $"RESTAURANTSIMULATION, {FastClock.Instance.Time.ToShortTimeString()}";
         }
 
-        protected void OnReadyTask(object sender, Order order)
+        protected void OnTaskReady(object sender, string text)
         {
-            AddLineToTextBox(order);
-        }
-
-        void AddLineToTextBox(Order order)
-        {
-            StringBuilder text = new StringBuilder(TextBlockLog.Text);
-            text.Append("\n");
-            text.Append(FastClock.Instance.Time.ToShortTimeString() + " \t ");
-            text.Append($"{order.MyArticle} für {order.Customer}" + " \t ");
-            text.Append($" ist {order.MyOrderType}.");
-            TextBlockLog.Text = text.ToString();
+            StringBuilder output = new StringBuilder(TextBlockLog.Text);
+            output.Append("\n");
+            output.Append($"{FastClock.Instance.Time.ToShortTimeString()}" + "\t" + text);
+            TextBlockLog.Text = output.ToString();
         }
     }
 }

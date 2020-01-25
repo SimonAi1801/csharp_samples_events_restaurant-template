@@ -10,78 +10,110 @@ namespace Restaurant.Core
 {
     public class Waiter
     {
-        private event EventHandler<Order> _logTask;
+        private event EventHandler<string> _logTask;
         private Dictionary<string, Article> _articles;
-        private Queue<Order> _orders;
-        private int _delay;
-        private string _pathTask = MyFile.GetFullNameInApplicationTree("Tasks.csv");
-        private string _pathArticle = MyFile.GetFullNameInApplicationTree("Articles.csv");
-        private int _minutesToBuild;
-        private Order _currentOrder;
-        private Article _currentArticle;
+        private Dictionary<string, Guest> _guestList;
+        private List<Task> _tasks;
 
-        public bool IsBusy
+        public Waiter(EventHandler<string> OnTaskReady)
         {
-            get
-            {
-                return _currentOrder != null;
-            }
-        }
-
-        public Waiter(EventHandler<Order> onReadyTask)
-        {
-            _logTask += onReadyTask;
-            _articles = new Dictionary<string, Article>();
-            _orders = new Queue<Order>();
-            string[] tasksLines = File.ReadAllLines(_pathTask);
-            string[] articlesLines = File.ReadAllLines(_pathArticle);
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
+            _logTask += OnTaskReady;
+            _articles = new Dictionary<string, Article>();
+            _guestList = new Dictionary<string, Guest>();
+            _tasks = new List<Task>();
 
-            InitArticles(articlesLines);
-            InitTasks(tasksLines);
+            InitArticles();
+            CreatTasks();
         }
 
-        private void InitArticles(string[] articlesLines)
+
+        private void InitArticles()
         {
-            for (int i = 1; i < articlesLines.Length; i++)
+            string articlePath = MyFile.GetFullNameInApplicationTree("Articles.csv");
+            string[] articleLines = File.ReadAllLines(articlePath, UTF8Encoding.Default);
+
+            for (int i = 1; i < articleLines.Length; i++)
             {
-                string[] parts = articlesLines[i].Split(';');
+                string[] parts = articleLines[i].Split(';');
                 string articleName = parts[0];
                 Article article = new Article(parts[0], Convert.ToDouble(parts[1]), Convert.ToInt32(parts[2]));
                 _articles.Add(articleName, article);
             }
         }
 
-        private void InitTasks(string[] tasksLines)
+        private void CreatTasks()
         {
-            for (int i = 1; i < tasksLines.Length; i++)
+            string taskPath = MyFile.GetFullNameInApplicationTree("Tasks.csv");
+            string[] taskLines = File.ReadAllLines(taskPath, UTF8Encoding.Default);
+            OrderType orderType;
+            Article article;
+            Guest guest;
+
+            for (int i = 1; i < taskLines.Length; i++)
             {
-                string[] parts = tasksLines[i].Split(';');
-                Order order = new Order(Convert.ToInt32(parts[0]), parts[1], parts[2], parts[3]);
-                _orders.Enqueue(order);
+                string[] parts = taskLines[i].Split(';');
+
+                if (parts != null && Enum.TryParse(parts[2], out orderType)
+                    && _articles.TryGetValue(parts[3], out article))
+                {
+                    string guestName = parts[1];
+                    guest = new Guest(guestName);
+                    if (!_guestList.ContainsKey(guestName))
+                    {
+                        _guestList.Add(guestName, guest);
+                    }
+
+                    DateTime taskTime = FastClock.Instance.Time.AddMinutes(Convert.ToInt32(parts[0]));
+                    Task taskOrder = new Task(taskTime, parts[1], orderType, parts[3]);
+                    _tasks.Add(taskOrder);
+
+                    if (orderType == OrderType.Order)
+                    {
+                        taskTime = taskTime.AddMinutes(article.TimeToBuild);
+                        Task taskReady = new Task(taskTime, taskOrder.Customer, OrderType.Ready, taskOrder.MyArticle);
+                        _tasks.Add(taskReady);
+                    }
+                }
             }
+            _tasks.Sort();
         }
 
         protected void Instance_OneMinuteIsOver(object sender, DateTime e)
         {
-            if (!IsBusy)
-            {
-                _currentOrder = _orders.Dequeue();
-                _delay = _currentOrder.Delay;
+            string text = String.Empty;
+            Guest guest;
+            Article article;
 
-                if (_articles.TryGetValue(_currentOrder.MyArticle, out _currentArticle))
+            while (_tasks.Count > 0 && _tasks[0].Delay == FastClock.Instance.Time)
+            {
+                if (_guestList.TryGetValue(_tasks[0].Customer, out guest))
                 {
-                    _minutesToBuild = _currentArticle.TimeToBuild;
-                    _currentOrder.Price = _currentArticle.Price;
+                    if (_tasks[0].MyOrderType == OrderType.Order)
+                    {
+                        text = $"{_tasks[0].MyArticle} für {_tasks[0].Customer} ist bestellt!";
+                    }
+
+                    else if (_tasks[0].MyOrderType == OrderType.Ready
+                                && _articles.TryGetValue(_tasks[0].MyArticle, out article))
+                    {
+                        text = $"{_tasks[0].MyArticle} für {_tasks[0].Customer} wird serviert!";
+                        guest.AddArticle(article);
+                    }
+
+                    else if (_tasks[0].MyOrderType == OrderType.ToPay)
+                    {
+                        text = $"{_tasks[0].Customer} bezahlt {guest.Bill} EUR!";
+                    }
+
+                    OnTaskFinish(text);
+                    _tasks.RemoveAt(0);
                 }
             }
-            _delay--;
-
-            if (_delay == 0)
-            {
-                _logTask?.Invoke(this, _currentOrder);
-
-            }
+        }
+        protected virtual void OnTaskFinish(string text)
+        {
+            _logTask?.Invoke(this, text);
         }
     }
 

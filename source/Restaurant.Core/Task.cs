@@ -6,21 +6,26 @@ using System.Threading.Tasks;
 
 namespace Restaurant.Core
 {
-    public class Order
+    public class Task : IComparable<Task>
     {
-        public int Delay { get; private set; }
+        public DateTime Delay { get; private set; }
         public string Customer { get; private set; }
-        public string MyOrderType { get; private set; }
+        public OrderType MyOrderType { get; private set; }
         public string MyArticle { get; private set; }
         public double Price { get; set; }
 
 
-        public Order(int delay, string customer, string orderType, string article)
+        public Task(DateTime delay, string customer, OrderType orderType, string article)
         {
             Delay = delay;
             Customer = customer;
             MyOrderType = orderType;
             MyArticle = article;
+        }
+
+        public int CompareTo(Task other)
+        {
+            return Delay.CompareTo(other.Delay);
         }
     }
 }
