@@ -12,8 +12,6 @@ namespace Restaurant.Core
         public string Customer { get; private set; }
         public OrderType MyOrderType { get; private set; }
         public string MyArticle { get; private set; }
-        public double Price { get; set; }
-
 
         public Task(DateTime delay, string customer, OrderType orderType, string article)
         {

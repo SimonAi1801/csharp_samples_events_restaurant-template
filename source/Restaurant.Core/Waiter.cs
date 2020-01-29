@@ -27,7 +27,6 @@ namespace Restaurant.Core
             CreatTasks();
         }
 
-
         private void InitArticles()
         {
             string articlePath = MyFile.GetFullNameInApplicationTree("Articles.csv");

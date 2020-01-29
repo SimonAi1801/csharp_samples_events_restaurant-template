@@ -18,8 +18,8 @@ namespace Restaurant.Wpf
         {
             FastClock.Instance.Factor = 60;
             FastClock.Instance.Time = DateTime.Parse("12:00");
-            FastClock.Instance.IsRunning = true;
             Waiter waiter = new Waiter(OnTaskReady);
+            FastClock.Instance.IsRunning = true;
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
         }
 
