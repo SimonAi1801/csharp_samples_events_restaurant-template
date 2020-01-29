@@ -82,7 +82,7 @@ namespace Restaurant.Core
             Guest guest;
             Article article;
 
-            while (_tasks.Count > 0 && _tasks[0].Delay == FastClock.Instance.Time)
+            while (_tasks.Count > 0 && _tasks[0].Delay.Equals(FastClock.Instance.Time))
             {
                 if (_guestList.TryGetValue(_tasks[0].Customer, out guest))
                 {
