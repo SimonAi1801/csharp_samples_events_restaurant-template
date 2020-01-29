@@ -10,7 +10,7 @@ namespace Restaurant.Core
 {
     public class Waiter
     {
-        private event EventHandler<string> _logTask;
+        private event EventHandler<string> _taskReady;
         private Dictionary<string, Article> _articles;
         private Dictionary<string, Guest> _guestList;
         private List<Task> _tasks;
@@ -18,7 +18,7 @@ namespace Restaurant.Core
         public Waiter(EventHandler<string> OnTaskReady)
         {
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
-            _logTask += OnTaskReady;
+            _taskReady += OnTaskReady;
             _articles = new Dictionary<string, Article>();
             _guestList = new Dictionary<string, Guest>();
             _tasks = new List<Task>();
@@ -111,7 +111,7 @@ namespace Restaurant.Core
         }
         protected virtual void OnTaskFinish(string text)
         {
-            _logTask?.Invoke(this, text);
+            _taskReady?.Invoke(this, text);
         }
     }
 

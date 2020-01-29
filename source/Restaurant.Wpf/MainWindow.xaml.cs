@@ -28,7 +28,7 @@ namespace Restaurant.Wpf
             Title = $"RESTAURANTSIMULATION, {FastClock.Instance.Time.ToShortTimeString()}";
         }
 
-        protected void OnTaskReady(object sender, string text)
+        protected virtual void OnTaskReady(object sender, string text)
         {
             StringBuilder output = new StringBuilder(TextBlockLog.Text);
             output.Append("\n");
