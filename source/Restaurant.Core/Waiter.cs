@@ -10,15 +10,14 @@ namespace Restaurant.Core
 {
     public class Waiter
     {
-        private event EventHandler<string> _taskReady;
+        public event EventHandler<string> _taskReady;
         private Dictionary<string, Article> _articles;
         private Dictionary<string, Guest> _guestList;
         private List<Task> _tasks;
 
-        public Waiter(EventHandler<string> OnTaskReady)
+        public Waiter()
         {
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
-            _taskReady += OnTaskReady;
             _articles = new Dictionary<string, Article>();
             _guestList = new Dictionary<string, Guest>();
             _tasks = new List<Task>();
