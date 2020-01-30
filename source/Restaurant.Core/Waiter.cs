@@ -62,13 +62,13 @@ namespace Restaurant.Core
                     }
 
                     DateTime taskTime = FastClock.Instance.Time.AddMinutes(Convert.ToInt32(parts[0]));
-                    Task taskOrder = new Task(taskTime, parts[1], orderType, parts[3]);
-                    _tasks.Add(taskOrder);
+                    Task task = new Task(taskTime, parts[1], orderType, parts[3]);
+                    _tasks.Add(task);
 
                     if (orderType == OrderType.Order && _articles.TryGetValue(parts[3], out article))
                     {
                         taskTime = taskTime.AddMinutes(article.TimeToBuild);
-                        Task taskReady = new Task(taskTime, taskOrder.Customer, OrderType.Ready, taskOrder.MyArticle);
+                        Task taskReady = new Task(taskTime, task.Customer, OrderType.Ready, task.MyArticle);
                         _tasks.Add(taskReady);
                     }
                 }
@@ -76,7 +76,7 @@ namespace Restaurant.Core
             _tasks.Sort();
         }
 
-        protected void Instance_OneMinuteIsOver(object sender, DateTime e)
+        protected virtual void Instance_OneMinuteIsOver(object sender, DateTime e)
         {
             string text = String.Empty;
             Guest guest;
