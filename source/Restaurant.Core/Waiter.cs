@@ -10,7 +10,7 @@ namespace Restaurant.Core
 {
     public class Waiter
     {
-        public event EventHandler<string> _taskReady;
+        public event EventHandler<string> TaskFinish;
         private Dictionary<string, Article> _articles;
         private Dictionary<string, Guest> _guestList;
         private List<Task> _tasks;
@@ -102,14 +102,14 @@ namespace Restaurant.Core
                         text = $"{_tasks[0].Customer} bezahlt {guest.Bill:F2} EUR!";
                     }
 
-                    OnTaskFinish(text);
+                    OnTaskIsFinish(text);
                     _tasks.RemoveAt(0);
                 }
             }
         }
-        protected virtual void OnTaskFinish(string text)
+        protected virtual void OnTaskIsFinish(string text)
         {
-            _taskReady?.Invoke(this, text);
+            TaskFinish?.Invoke(this, text);
         }
     }
 

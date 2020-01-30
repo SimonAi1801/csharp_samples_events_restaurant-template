@@ -19,7 +19,7 @@ namespace Restaurant.Wpf
             FastClock.Instance.Factor = 360;
             FastClock.Instance.Time = DateTime.Parse("12:00");
             Waiter waiter = new Waiter();
-            waiter._taskReady += OnTaskReady;
+            waiter.TaskFinish += OnTaskIsFinish;
             FastClock.Instance.IsRunning = true;
             FastClock.Instance.OneMinuteIsOver += Instance_OneMinuteIsOver;
         }
@@ -29,7 +29,7 @@ namespace Restaurant.Wpf
             Title = $"RESTAURANTSIMULATION, {FastClock.Instance.Time.ToShortTimeString()}";
         }
 
-        protected virtual void OnTaskReady(object sender, string text)
+        protected virtual void OnTaskIsFinish(object sender, string text)
         {
             StringBuilder output = new StringBuilder(TextBlockLog.Text);
             output.Append("\n");
